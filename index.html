@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Register</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        
+        #root {
+            background-color: crimson;
+            color: white;
+            font-size: 1.5em;
+            text-align: center;
+            padding: 20px;
+            margin: 50px auto;
+            width: 300px;
+            border-radius: 10px;
+        }
+        
+        input, button, select {
+            display: block;
+            margin: 10px auto;
+            padding: 10px;
+            font-size: 1em;
+        }
+        
+        h1 {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <!-- Input untuk login -->
+        <input type="text" placeholder="Username" id="usernameInput">
+        <input type="password" placeholder="Password" id="passwordInput">
+        <button onclick="onLogin()">LOGIN</button>
+        <button onclick="onLogout()" style="display: none;">LOGOUT</button>
+        <button onclick="showRegister()">REGISTER</button>
+        
+        <!-- Pesan role saat login -->
+        <h1 id="admin">Anda login sebagai ADMIN</h1>
+        <h1 id="user">Anda login sebagai USER</h1>
+        <h1 id="moderator">Anda login sebagai MODERATOR</h1>
+    </div>
+
+    <div id="register" style="display: none;">
+        <!-- Input untuk registrasi -->
+        <input type="text" placeholder="Username baru" id="newUsername">
+        <input type="password" placeholder="Password baru" id="newPassword">
+        <select id="roleSelect">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+            <option value="moderator">Moderator</option>
+        </select>
+        <button onclick="onRegister()">DAFTAR</button>
+    </div>
+
+    <script>
+        // Menampilkan form registrasi
+        function showRegister() {
+            document.getElementById("register").style.display = "block";
+        }
+
+        // Fungsi untuk registrasi akun baru
+        function onRegister() {
+            let newUsername = document.getElementById("newUsername").value;
+            let newPassword = document.getElementById("newPassword").value;
+            let role = document.getElementById("roleSelect").value;
+            let users = JSON.parse(localStorage.getItem("users")) || [];
+            
+            // Menyimpan pengguna baru ke localStorage
+            users.push({ username: newUsername, password: newPassword, role: role });
+            localStorage.setItem("users", JSON.stringify(users));
+            alert("Pendaftaran berhasil! Silakan login.");
+            location.reload();
+        }
+
+        // Fungsi untuk login
+        function onLogin() {
+            let username = document.getElementById("usernameInput").value;
+            let password = document.getElementById("passwordInput").value;
+            let users = JSON.parse(localStorage.getItem("users")) || [];
+            
+            // Mencari user berdasarkan username dan password
+            let foundUser = users.find(user => user.username === username && user.password === password);
+
+            if (foundUser) {
+                // Menyimpan informasi login di localStorage
+                localStorage.setItem("username", foundUser.username);
+                localStorage.setItem("role", foundUser.role);
+                
+                // Menyembunyikan elemen login & register
+                document.querySelector("button[onclick='onLogout()']").style.display = "block";
+                document.getElementById("usernameInput").style.display = "none";
+                document.getElementById("passwordInput").style.display = "none";
+                document.querySelector("button[onclick='onLogin()']").style.display = "none";
+                document.querySelector("button[onclick='showRegister()']").style.display = "none";
+                
+                // Menampilkan role sesuai user yang login
+                document.getElementById("admin").style.display = foundUser.role === "admin" ? "block" : "none";
+                document.getElementById("user").style.display = foundUser.role === "user" ? "block" : "none";
+                document.getElementById("moderator").style.display = foundUser.role === "moderator" ? "block" : "none";
+            } else {
+                alert("Username atau password salah!");
+            }
+        }
+
+        // Fungsi untuk logout
+        function onLogout() {
+            localStorage.clear(); // Menghapus data login
+            location.reload(); // Refresh halaman
+        }
+    </script>
+</body>
+</html>
